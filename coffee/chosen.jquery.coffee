@@ -25,7 +25,7 @@ class Chosen extends AbstractChosen
     @is_rtl = @form_field_jq.hasClass "chosen-rtl"
 
   set_up_html: ->
-    container_classes = ["chosen-container"]
+    container_classes = ["chosen-container select"]
     container_classes.push "chosen-container-" + (if @is_multiple then "multi" else "single")
     container_classes.push @form_field.className if @inherit_select_classes && @form_field.className
     container_classes.push "chosen-rtl" if @is_rtl
@@ -42,7 +42,7 @@ class Chosen extends AbstractChosen
     if @is_multiple
       @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chosen-drop"><ul class="chosen-results"></ul></div>'
     else
-      @container.html '<a class="chosen-single chosen-default" tabindex="-1"><span>' + @default_text + '</span><div><b></b></div></a><div class="chosen-drop"><div class="chosen-search"><input type="text" autocomplete="off" /></div><ul class="chosen-results"></ul></div>'
+      @container.html '<a class="chosen-single chosen-default btn btn-small" tabindex="-1"><span>' + @default_text + '</span><div><b class="caret"></b></div></a><div class="chosen-drop"><div class="chosen-search"><input type="text" autocomplete="off" /></div><ul class="chosen-results"></ul></div>'
 
     @form_field_jq.hide().after @container
     @dropdown = @container.find('div.chosen-drop').first()
@@ -200,7 +200,7 @@ class Chosen extends AbstractChosen
       this.result_clear_highlight()
 
       @result_highlight = el
-      @result_highlight.addClass "highlighted"
+      @result_highlight.addClass "highlighted text-highlighted"
 
       maxHeight = parseInt @search_results.css("maxHeight"), 10
       visible_top = @search_results.scrollTop()
@@ -215,7 +215,7 @@ class Chosen extends AbstractChosen
         @search_results.scrollTop high_top
 
   result_clear_highlight: ->
-    @result_highlight.removeClass "highlighted" if @result_highlight
+    @result_highlight.removeClass "highlighted text-highlighted" if @result_highlight
     @result_highlight = null
 
   results_show: ->
@@ -283,12 +283,12 @@ class Chosen extends AbstractChosen
     this.result_clear_highlight() if $(evt.target).hasClass "active-result" or $(evt.target).parents('.active-result').first()
 
   choice_build: (item) ->
-    choice = $('<li />', { class: "search-choice" }).html("<span>#{item.html}</span>")
+    choice = $('<li />', { class: "search-choice btn btn-small" }).html("<span>#{item.html}</span>")
 
     if item.disabled
-      choice.addClass 'search-choice-disabled'
+      choice.addClass 'search-choice-disabled disabled'
     else
-      close_link = $('<a />', { class: 'search-choice-close', 'data-option-array-index': item.array_index })
+      close_link = $('<a />', { class: 'search-choice-close close delete', 'data-option-array-index': item.array_index })
       close_link.bind 'click.chosen', (evt) => this.choice_destroy_link_click(evt)
       choice.append close_link
     
@@ -333,7 +333,7 @@ class Chosen extends AbstractChosen
         return false
 
       if @is_multiple
-        high.removeClass("active-result")
+        high.removeClass("active-result active")
       else
         if @result_single_selected
           @result_single_selected.removeClass("result-selected")
@@ -445,10 +445,10 @@ class Chosen extends AbstractChosen
         if @single_backstroke_delete
           @keydown_backstroke()
         else
-          @pending_backstroke.addClass "search-choice-focus"
+          @pending_backstroke.addClass "search-choice-focus btn-error"
 
   clear_backstroke: ->
-    @pending_backstroke.removeClass "search-choice-focus" if @pending_backstroke
+    @pending_backstroke.removeClass "search-choice-focus btn-error" if @pending_backstroke
     @pending_backstroke = null
 
   keydown_checker: (evt) ->
