@@ -7,11 +7,11 @@ $.fn.extend({
     return this unless AbstractChosen.browser_is_supported()
     this.each (input_field) ->
       $this = $ this
-      chosen = $this.data('chosen')
+      chosen = $this.data('wdesk.chosen')
       if options is 'destroy' && chosen
         chosen.destroy()
       else unless chosen
-        $this.data('chosen', new Chosen(this, options))
+        $this.data('wdesk.chosen', new Chosen(this, options))
 
       return
 
@@ -26,7 +26,7 @@ class Chosen extends AbstractChosen
 
   set_up_html: ->
     container_classes = ["chosen-container select"]
-    container_classes.push "chosen-container-" + (if @is_multiple then "multi" else "single")
+    container_classes.push "chosen-container-" + (if @is_multiple then "multi" else "single dropdown")
     container_classes.push @form_field.className if @inherit_select_classes && @form_field.className
     container_classes.push "chosen-rtl" if @is_rtl
 
@@ -40,9 +40,9 @@ class Chosen extends AbstractChosen
     @container = ($ "<div />", container_props)
 
     if @is_multiple
-      @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chosen-drop"><ul class="chosen-results"></ul></div>'
+      @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chosen-drop dropdown-menu"><ul class="chosen-results"></ul></div>'
     else
-      @container.html '<a class="chosen-single chosen-default btn btn-small" tabindex="-1"><span>' + @default_text + '</span><div><b class="caret"></b></div></a><div class="chosen-drop"><div class="chosen-search"><input type="text" autocomplete="off" /></div><ul class="chosen-results"></ul></div>'
+      @container.html '<a class="chosen-single chosen-default btn dropdown-toggle" tabindex="-1"><span>' + @default_text + '</span><b class="caret"></b></a><div class="chosen-drop dropdown-menu"><div class="chosen-search"><input type="text" autocomplete="off" class="input-small" /></div><ul class="chosen-results"></ul></div>'
 
     @form_field_jq.hide().after @container
     @dropdown = @container.find('div.chosen-drop').first()
@@ -100,7 +100,7 @@ class Chosen extends AbstractChosen
       @form_field_jq[0].tabIndex = @search_field[0].tabIndex
 
     @container.remove()
-    @form_field_jq.removeData('chosen')
+    @form_field_jq.removeData('wdesk.chosen')
     @form_field_jq.show()
 
   search_field_disabled: ->
@@ -200,7 +200,7 @@ class Chosen extends AbstractChosen
       this.result_clear_highlight()
 
       @result_highlight = el
-      @result_highlight.addClass "highlighted text-highlighted"
+      @result_highlight.addClass "highlighted"
 
       maxHeight = parseInt @search_results.css("maxHeight"), 10
       visible_top = @search_results.scrollTop()
@@ -215,7 +215,7 @@ class Chosen extends AbstractChosen
         @search_results.scrollTop high_top
 
   result_clear_highlight: ->
-    @result_highlight.removeClass "highlighted text-highlighted" if @result_highlight
+    @result_highlight.removeClass "highlighted" if @result_highlight
     @result_highlight = null
 
   results_show: ->
@@ -223,7 +223,7 @@ class Chosen extends AbstractChosen
       @form_field_jq.trigger("chosen:maxselected", {chosen: this})
       return false
 
-    @container.addClass "chosen-with-drop"
+    @container.addClass "chosen-with-drop open"
     @form_field_jq.trigger("chosen:showing_dropdown", {chosen: this})
 
     @results_showing = true
@@ -240,7 +240,7 @@ class Chosen extends AbstractChosen
     if @results_showing
       this.result_clear_highlight()
 
-      @container.removeClass "chosen-with-drop"
+      @container.removeClass "chosen-with-drop open"
       @form_field_jq.trigger("chosen:hiding_dropdown", {chosen: this})
 
     @results_showing = false
@@ -288,7 +288,7 @@ class Chosen extends AbstractChosen
     if item.disabled
       choice.addClass 'search-choice-disabled disabled'
     else
-      close_link = $('<a />', { class: 'search-choice-close close delete', 'data-option-array-index': item.array_index })
+      close_link = $('<a class="search-choice-close close delete" data-option-array-index="' + item.array_index + '">&times;</a>')
       close_link.bind 'click.chosen', (evt) => this.choice_destroy_link_click(evt)
       choice.append close_link
     
