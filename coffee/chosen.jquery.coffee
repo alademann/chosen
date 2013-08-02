@@ -7,11 +7,11 @@ $.fn.extend({
     return this unless AbstractChosen.browser_is_supported()
     this.each (input_field) ->
       $this = $ this
-      chosen = $this.data('wdesk.chosen')
+      chosen = $this.data('chosen')
       if options is 'destroy' && chosen
         chosen.destroy()
       else unless chosen
-        $this.data('wdesk.chosen', new Chosen(this, options))
+        $this.data('chosen', new Chosen(this, options))
 
       return
 
@@ -100,7 +100,7 @@ class Chosen extends AbstractChosen
       @form_field_jq[0].tabIndex = @search_field[0].tabIndex
 
     @container.remove()
-    @form_field_jq.removeData('wdesk.chosen')
+    @form_field_jq.removeData('chosen')
     @form_field_jq.show()
 
   search_field_disabled: ->
