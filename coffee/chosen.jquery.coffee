@@ -135,7 +135,7 @@ class Chosen extends AbstractChosen
     this.results_reset(evt) if evt.target.nodeName is "ABBR" and not @is_disabled
 
   search_results_mousewheel: (evt) ->
-    delta = -evt.originalEvent?.wheelDelta or evt.originialEvent?.detail
+    delta = -evt.originalEvent.wheelDelta or evt.originalEvent.detail if evt.originalEvent
     if delta?
       evt.preventDefault()
       delta = delta * 40 if evt.type is 'DOMMouseScroll'
@@ -176,10 +176,7 @@ class Chosen extends AbstractChosen
 
     @results_data = SelectParser.select_to_array @form_field
     @results_count = @results_data.length
-    if @results_count > 0 
-      @results_all_chosen = false
-    else 
-      @results_all_chosen = true
+    @remaining_results = @results_count == 0
 
     if @is_multiple
       @search_choices.find("li.search-choice").remove()
@@ -228,7 +225,7 @@ class Chosen extends AbstractChosen
       @form_field_jq.trigger("chosen:maxselected", {chosen: this})
       return false
 
-    if @is_multiple and @results_all_chosen
+    if @is_multiple and @remaining_results
       @form_field_jq.trigger("chosen:allselected", {chosen: this})
       return false
 
@@ -292,12 +289,12 @@ class Chosen extends AbstractChosen
     this.result_clear_highlight() if $(evt.target).hasClass "active-result" or $(evt.target).parents('.active-result').first()
 
   choice_build: (item) ->
-    choice = $('<li />', { class: "search-choice btn btn-small" }).html("<span>#{item.html}</span>")
+    choice = $('<li />', { class: "search-choice btn btn-sm" }).html("<span>#{item.html}</span>")
 
     if item.disabled
       choice.addClass 'search-choice-disabled disabled'
     else
-      close_link = $('<a class="search-choice-close close delete" data-option-array-index="' + item.array_index + '">&times;</a>')
+      close_link = $('<a />', { class: 'search-choice-close close delete', 'data-option-array-index': item.array_index })
       close_link.bind 'click.chosen', (evt) => this.choice_destroy_link_click(evt)
       choice.append close_link
     
@@ -319,8 +316,8 @@ class Chosen extends AbstractChosen
       this.search_field_scale()
 
   results_reset: ->
+    this.reset_single_select_options()
     @form_field.options[0].selected = true
-    @selected_option_count = null
     this.single_set_selected_text()
     this.show_search_field_default()
     this.results_reset_cleanup()
@@ -344,25 +341,14 @@ class Chosen extends AbstractChosen
       if @is_multiple
         high.removeClass("active-result active")
       else
-        if @result_single_selected
-          @result_single_selected.removeClass("result-selected")
-          selected_index = @result_single_selected[0].getAttribute('data-option-array-index')
-          @results_data[selected_index].selected = false
-
-        @result_single_selected = high
-
-      high.addClass "result-selected"
+        this.reset_single_select_options()
 
       item = @results_data[ high[0].getAttribute("data-option-array-index") ]
       item.selected = true
 
       @form_field.options[item.options_index].selected = true
       @selected_option_count = @selected_option_count + 1
-
-      if @selected_option_count == @results_count 
-        @results_all_chosen = true
-      else 
-        @results_all_chosen = false
+      @remaining_results = @selected_option_count == @results_count
 
       if @is_multiple
         this.choice_build item
@@ -394,7 +380,7 @@ class Chosen extends AbstractChosen
 
       @form_field.options[result_data.options_index].selected = false
       @selected_option_count = @selected_option_count - 1
-      @results_all_chosen = false
+      @remaining_results = false
 
       this.result_clear_highlight()
       this.winnow_results() if @results_showing
