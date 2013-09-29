@@ -40,9 +40,9 @@ class Chosen extends AbstractChosen
     @container = ($ "<div />", container_props)
 
     if @is_multiple
-      @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chosen-drop dropdown-menu"><ul class="chosen-results"></ul></div>'
+      @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="form-control input-sm default" autocomplete="off" style="width:25px;"></li></ul><div class="chosen-drop dropdown-menu"><ul class="chosen-results"></ul></div>'
     else
-      @container.html '<a class="chosen-single chosen-default btn dropdown-toggle" tabindex="-1"><span>' + @default_text + '</span><b class="caret"></b></a><div class="chosen-drop dropdown-menu"><div class="chosen-search"><input type="text" autocomplete="off" class="input-small" /></div><ul class="chosen-results"></ul></div>'
+      @container.html '<a class="chosen-single chosen-default btn dropdown-toggle" tabindex="-1"><span>' + @default_text + '</span><b class="caret"></b></a><div class="chosen-drop dropdown-menu"><div class="chosen-search"><input type="text" autocomplete="off" class="form-control input-sm"></div><ul class="chosen-results"></ul></div>'
 
     @form_field_jq.hide().after @container
     @dropdown = @container.find('div.chosen-drop').first()
@@ -394,7 +394,7 @@ class Chosen extends AbstractChosen
 
   single_deselect_control_build: ->
     return unless @allow_single_deselect
-    @selected_item.find("span").first().after "<abbr class=\"search-choice-close\"></abbr>" unless @selected_item.find("abbr").length
+    @selected_item.find("span").first().after "<abbr class=\"search-choice-close close delete\"></abbr>" unless @selected_item.find("abbr").length
     @selected_item.addClass("chosen-single-with-deselect")
 
   get_search_text: ->
